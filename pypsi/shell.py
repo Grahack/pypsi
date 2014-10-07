@@ -34,6 +34,7 @@ from pypsi.namespace import Namespace
 from pypsi.cmdline import StringToken, OperatorToken, WhitespaceToken
 from pypsi.completers import path_completer
 from pypsi.stream import AnsiStream, AnsiCodes, pypsi_print
+from pypsi.utils import ThreadLocalProxy
 import readline
 import sys
 
@@ -76,8 +77,9 @@ class Shell(object):
 
     def bootstrap(self):
         import builtins
-        sys.stdout = AnsiStream(sys.stdout, width=self.width)
-        sys.stderr = AnsiStream(sys.stderr, width=self.width)
+        sys.stdout = ThreadLocalProxy(AnsiStream(sys.stdout, width=self.width))
+        sys.stderr = ThreadLocalProxy(AnsiStream(sys.stderr, width=self.width))
+        sys.stdin = ThreadLocalProxy(sys.stdin)
         builtins.print = pypsi_print #sys.stdout.write
 
     def register_base_plugins(self):
