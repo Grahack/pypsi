@@ -32,6 +32,11 @@
 Unix (Cygwin, Linux, etc) specific functions
 '''
 
+import threading
+import signal
+from pypsi.os import base
+
+
 def unix_path_completer(shell, args, prefix):
     root = None
     if args:
@@ -68,3 +73,12 @@ def unix_path_completer(shell, args, prefix):
     else:
         return []
 
+
+class UnixThread(base.BasePypsiThread):
+
+    def stop(self):
+        pass
+
+    def kill(self):
+        if self.is_alive():
+            signal.pthread_kill(self.get_ident())

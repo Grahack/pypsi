@@ -27,3 +27,15 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
+import sys
+
+if sys.platform == 'win32':
+    from pypsi.os.win32 import Win32Thread as PypsiThread
+    from pypsi.os.win32 import win32_path_completer as path_completer
+    #PypsiThread = Win32Thread
+elif sys.platform == 'cygwin' or sys.platform.startswith('linux'):
+    from pypsi.os.unix import UnixThread as PypsiThread
+    from pypsi.os.unix import unix_path_completer as path_completer
+    #PypsiThread = UnixThread
+

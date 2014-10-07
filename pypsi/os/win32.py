@@ -33,6 +33,7 @@ Windows specific functions
 '''
 
 import os
+from pypsi.os import base
 
 
 def win32_path_completer(shell, args, prefix):
@@ -73,3 +74,15 @@ def win32_path_completer(shell, args, prefix):
         return dirs + files
     else:
         return []
+
+
+class Win32Thread(base.BasePypsiThread):
+
+    def stop(self):
+        pass
+
+    def kill(self):
+        import win32api
+        hThread = win32api.OpenThread(win32api.THREAD_TERMINATE, False, self.get_ident())
+        if hThread:
+            win32api.TerminateThread(hThread, 1)

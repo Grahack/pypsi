@@ -32,22 +32,7 @@
 Builtin tab completion functions.
 '''
 
-
-import os
-import sys
-
-#: Completion function for hard drive paths. The exact function is chosen at
-#: runtime because it is OS specific.
-path_completer = None
-
-
-if sys.platform == 'win32':
-    from pypsi.os.win32 import win32_path_completer
-    path_completer = win32_path_completer
-elif sys.platform == 'cygwin' or sys.platform.startswith('linux'):
-    from pypsi.os.unix import unix_path_completer
-    path_completer = unix_path_completer
-
+from pypsi.os import path_completer
 
 
 def choice_completer(choices, case_sensitive=False):
