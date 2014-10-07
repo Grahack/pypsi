@@ -34,6 +34,64 @@ Utility functions and classes.
 
 from chardet.universaldetector import UniversalDetector
 import codecs
+import sys
+import threading
+
+
+class Pipe(object):
+
+    def __init__(self, input=None, output=None):
+        if input and output:
+            self.input, self.output = input, output
+        else:
+            fi, fi = os.pipe()
+            self.input = os.fdopen(fi, 'r')
+            self.output = os.fdopen(fo, 'w')
+
+    def close(self):
+        self.input.close()
+        self.output.close()
+
+
+def close_input_pipe(pipe):
+    if isinstance(pipe, Pipe):
+        pipe.input.close()
+    elif pipe:
+        pipe.close()
+
+def close_output_pipe(pipe):
+    if isinstance(pipe, Pipe):
+        pipe.output.close()
+    elif pipe:
+        pipe.close()
+
+
+class ThreadLocalProxy(object):
+
+    def __init__(self, obj):
+        self._proxies = {}
+        self._add_proxy(obj)
+
+    def _add_proxy(self, obj, tid=None):
+        tid = tid or threading.get_ident()
+        self._proxies[tid] = obj
+
+    def _remove_proxy(self, tid=None):
+        tid = tid or threading.get_ident()
+        del self._proxies[tid]
+
+    def _get(self, tid=None):
+        tid = tid or threading.get_ident()
+        return self._proxies[tid]
+
+    def __getattr__(self, name):
+        return getattr(self._proxies[threading.get_ident()], name)
+
+    def __setattr__(self, name, value):
+        if name in ('_proxies',):
+            super(ThreadLocalProxy, self).__setattr__(name, value)
+        else:
+            setattr(self._proxies[threading.get_ident()], name, value)
 
 
 def safe_open(path, mode='r'):
@@ -68,3 +126,5 @@ def safe_open(path, mode='r'):
             break
 
     return fp
+
+
